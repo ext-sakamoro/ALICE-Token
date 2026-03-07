@@ -12,8 +12,8 @@ use alice_token::{
 
 fn build_test_vocab() -> Vocab {
     let mut builder = VocabBuilder::new();
-    for b in 0u16..=255 {
-        builder.add_token(vec![b as u8]);
+    for b in 0u8..=255 {
+        builder.add_token(vec![b]);
     }
     builder.add_merge(b"t", b"h");
     builder.add_merge(b"th", b"e");
@@ -247,6 +247,7 @@ fn io_binary_roundtrip() {
     assert_eq!(reloaded.len(), vocab.len());
     assert_eq!(reloaded.merge_count(), vocab.merge_count());
 
+    #[allow(clippy::cast_possible_truncation)]
     for id in 0..vocab.len() as u32 {
         assert_eq!(vocab.get_token(id), reloaded.get_token(id));
     }
@@ -280,7 +281,7 @@ fn trainer_roundtrip() {
         min_frequency: 2,
     });
     let text = b"the quick brown fox jumps over the lazy dog";
-    let corpus: Vec<&[u8]> = std::iter::repeat(text.as_slice()).take(10).collect();
+    let corpus: Vec<&[u8]> = std::iter::repeat_n(text.as_slice(), 10).collect();
     let vocab = trainer.train(&corpus);
     let tok = Tokenizer::new(vocab);
     assert_eq!(tok.decode(&tok.encode(text)), text);
@@ -370,7 +371,7 @@ fn full_pipeline_train_then_encode() {
         min_frequency: 2,
     });
     let corpus_text = b"the quick brown fox jumps over the lazy dog ";
-    let corpus: Vec<&[u8]> = std::iter::repeat(corpus_text.as_slice()).take(50).collect();
+    let corpus: Vec<&[u8]> = std::iter::repeat_n(corpus_text.as_slice(), 50).collect();
     let vocab = trainer.train(&corpus);
 
     let pt = PreTokenizer::new(PreTokenizerPattern::Gpt4);

@@ -374,8 +374,7 @@ mod tests {
     #[test]
     fn test_iter() {
         let st = make_test_special();
-        let items: Vec<_> = st.iter().collect();
-        assert_eq!(items.len(), 3);
+        assert_eq!(st.iter().count(), 3);
     }
 
     #[test]

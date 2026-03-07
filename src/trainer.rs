@@ -208,7 +208,7 @@ mod tests {
         });
 
         let text = b"the quick brown fox jumps over the lazy dog";
-        let corpus: Vec<&[u8]> = std::iter::repeat(text.as_slice()).take(10).collect();
+        let corpus: Vec<&[u8]> = std::iter::repeat_n(text.as_slice(), 10).collect();
         let vocab = trainer.train(&corpus);
 
         let tok = Tokenizer::new(vocab);
@@ -225,7 +225,7 @@ mod tests {
         });
 
         let text = "こんにちは".as_bytes();
-        let corpus: Vec<&[u8]> = std::iter::repeat(text).take(10).collect();
+        let corpus: Vec<&[u8]> = std::iter::repeat_n(text, 10).collect();
         let vocab = trainer.train(&corpus);
 
         // UTF-8バイト列のマージが学習されている
@@ -244,7 +244,7 @@ mod tests {
     #[test]
     fn test_merge_pair() {
         let word = vec![vec![b'a'], vec![b'b'], vec![b'c'], vec![b'a'], vec![b'b']];
-        let result = merge_pair(&word, &[b'a'], &[b'b']);
+        let result = merge_pair(&word, b"a", b"b");
         // "ab" + "c" + "ab" = 3要素
         assert_eq!(result.len(), 3);
         assert_eq!(result[0], vec![b'a', b'b']);
@@ -255,7 +255,7 @@ mod tests {
     #[test]
     fn test_merge_pair_no_match() {
         let word = vec![vec![b'x'], vec![b'y']];
-        let result = merge_pair(&word, &[b'a'], &[b'b']);
+        let result = merge_pair(&word, b"a", b"b");
         assert_eq!(result.len(), 2);
     }
 
@@ -287,7 +287,7 @@ mod tests {
         });
 
         let text = b"the quick brown fox jumps over the lazy dog ";
-        let corpus: Vec<&[u8]> = std::iter::repeat(text.as_slice()).take(100).collect();
+        let corpus: Vec<&[u8]> = std::iter::repeat_n(text.as_slice(), 100).collect();
         let vocab = trainer.train(&corpus);
 
         assert!(vocab.len() > 256);

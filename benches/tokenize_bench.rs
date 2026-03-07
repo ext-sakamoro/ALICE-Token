@@ -5,8 +5,8 @@ use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criteri
 
 fn build_bench_vocab() -> alice_token::Vocab {
     let mut builder = VocabBuilder::new();
-    for b in 0u16..=255 {
-        builder.add_token(vec![b as u8]);
+    for b in 0u8..=255 {
+        builder.add_token(vec![b]);
     }
     // 頻出英語バイグラム
     let merges: &[(&[u8], &[u8])] = &[

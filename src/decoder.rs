@@ -71,7 +71,7 @@ mod tests {
     fn test_decode_single_byte() {
         let vocab = make_vocab();
         let dec = Decoder::new(&vocab);
-        let result = dec.decode(&[b'A' as u32]);
+        let result = dec.decode(&[u32::from(b'A')]);
         assert_eq!(result, b"A");
     }
 
