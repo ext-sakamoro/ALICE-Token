@@ -1,0 +1,69 @@
+[package]
+name = "alice-token"
+version = "1.0.0"
+edition = "2021"
+authors = ["Moroya Sakamoto"]
+license = "MIT"
+description = "Ultra-fast BPE tokenizer for the ALICE ecosystem"
+keywords = ["tokenizer", "bpe", "nlp", "simd", "alice"]
+categories = ["text-processing", "algorithms"]
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[features]
+default = ["std"]
+std = []
+ffi = ["std"]
+python = ["pyo3", "numpy", "std"]
+simd_bridge = ["dep:alice-simd"]
+text_bridge = ["dep:alice-text"]
+ml_bridge = ["dep:alice-ml"]
+search_bridge = ["dep:alice-search"]
+
+[dependencies]
+# 高速ハッシュマップ（語彙テーブル用）
+rustc-hash = "2"
+
+# 並列トークナイズ
+rayon = "1.10"
+
+# 正規表現プリトークナイザー（先読み対応）
+fancy-regex = "0.14"
+
+# tiktoken語彙ファイル読み込み用
+base64 = "0.22"
+
+# バイナリシリアライズ
+bincode = "1.3"
+serde = { version = "1", features = ["derive"] }
+
+# Python バインディング（optional）
+pyo3 = { version = "0.22", features = ["extension-module"], optional = true }
+numpy = { version = "0.22", optional = true }
+
+# ALICE エコシステムブリッジ（optional）
+alice-simd = { path = "../ALICE-SIMD", optional = true }
+alice-text = { path = "../ALICE-Text", optional = true }
+alice-ml = { path = "../ALICE-ML", optional = true }
+alice-search = { path = "../ALICE-Search", optional = true }
+
+[dev-dependencies]
+criterion = { version = "0.5", features = ["html_reports"] }
+
+[[bench]]
+name = "tokenize_bench"
+harness = false
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true
+
+[profile.bench]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+debug = false
