@@ -2,7 +2,7 @@
 name = "alice-token"
 version = "1.0.0"
 edition = "2021"
-authors = ["Moroya Sakamoto"]
+authors = ["Moroya Sakamoto <sakamoro@alicelaw.net>"]
 license = "MIT OR Apache-2.0"
 description = "Ultra-fast BPE tokenizer for the ALICE ecosystem"
 keywords = ["tokenizer", "bpe", "nlp", "simd", "alice"]
