@@ -131,10 +131,10 @@ impl VocabBuilder {
         let mut merge_map = FxHashMap::default();
         let mut merge_list = Vec::with_capacity(self.merges.len());
 
-        // イテレーション中の借用問題を回避するためクローン
-        let merges_snapshot = self.merges.clone();
+        // merges を drain して所有権ごと処理し、clone を回避する
+        let merges = std::mem::take(&mut self.merges);
 
-        for (rank, (left_bytes, right_bytes)) in merges_snapshot.iter().enumerate() {
+        for (rank, (left_bytes, right_bytes)) in merges.into_iter().enumerate() {
             let Some(&left_id) = self.token_to_id.get(left_bytes.as_slice()) else {
                 continue;
             };
@@ -143,8 +143,8 @@ impl VocabBuilder {
             };
 
             // マージ後のバイト列を生成
-            let mut merged_bytes = left_bytes.clone();
-            merged_bytes.extend_from_slice(right_bytes);
+            let mut merged_bytes = left_bytes;
+            merged_bytes.extend_from_slice(&right_bytes);
 
             let merged_id = self.add_token(merged_bytes);
 

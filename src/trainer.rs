@@ -66,18 +66,15 @@ impl Trainer {
             // 隣接ペアの頻度をカウント
             let pair_counts = count_pairs(&word_freqs);
 
-            // 最頻出ペアを選択
+            // 最頻出ペアを所有権ごと取り出す（clone 不要）
             let best_pair = pair_counts
-                .iter()
-                .max_by_key(|(_, &count)| count)
-                .filter(|(_, &count)| count >= self.config.min_frequency);
+                .into_iter()
+                .max_by_key(|(_, count)| *count)
+                .filter(|(_, count)| *count >= self.config.min_frequency);
 
             let Some(((left, right), _)) = best_pair else {
                 break;
             };
-
-            let left = left.clone();
-            let right = right.clone();
 
             // マージルールを追加
             builder.add_merge(&left, &right);

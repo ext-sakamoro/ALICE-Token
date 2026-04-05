@@ -57,15 +57,11 @@ pub fn load_tiktoken(data: &str) -> Result<Vocab, TokenIoError> {
     }
 
     // マージルール再構成: マルチバイトトークンを左右に分割
+    // ranks を消費して builder2 に移動し、clone を排除する
     let mut builder2 = byte_level_builder();
-    for (token_bytes, _) in &ranks {
-        builder2.add_token(token_bytes.clone());
-    }
-
-    // 2バイト以上のトークンについて、可能な分割をマージルールとして追加
-    for (token_bytes, _) in &ranks {
+    for (token_bytes, _) in ranks.iter() {
+        // 分割点の探索は token_map への参照で完結するため先にスキャンする
         if token_bytes.len() >= 2 {
-            // 最適な分割点を探す: 両方が既知トークンである最初の分割
             for split_pos in 1..token_bytes.len() {
                 let left = &token_bytes[..split_pos];
                 let right = &token_bytes[split_pos..];
@@ -75,6 +71,10 @@ pub fn load_tiktoken(data: &str) -> Result<Vocab, TokenIoError> {
                 }
             }
         }
+    }
+    // トークンは所有権ごと builder2 に渡して clone を回避する
+    for (token_bytes, _) in ranks {
+        builder2.add_token(token_bytes);
     }
 
     Ok(builder2.build())
@@ -132,11 +132,11 @@ pub fn load_binary(data: &[u8]) -> Result<Vocab, TokenIoError> {
         bincode::deserialize(data).map_err(|e| TokenIoError::Deserialize(e.to_string()))?;
 
     let mut builder = VocabBuilder::new();
-    for token in &binary.tokens {
-        builder.add_token(token.clone());
-    }
     for (left, right) in &binary.merges {
         builder.add_merge(left, right);
+    }
+    for token in binary.tokens {
+        builder.add_token(token);
     }
 
     Ok(builder.build())
