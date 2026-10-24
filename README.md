@@ -60,4 +60,6 @@ let batch_results = par.encode_batch(&["text1", "text2", "text3"]);
 
 ## License
 
-MIT
+`LicenseRef-Proprietary`. The text is [LICENSE-Proprietary](LICENSE-Proprietary).
+
+Enquiries: https://extoria.co.jp/
