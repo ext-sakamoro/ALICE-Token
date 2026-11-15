@@ -51,6 +51,7 @@ alice-search = { git = "https://github.com/ext-sakamoro/ALICE-Search", branch = 
 
 [dev-dependencies]
 criterion = { version = "0.5", features = ["html_reports"] }
+sha2 = "0.10"
 
 [[bench]]
 name = "tokenize_bench"
