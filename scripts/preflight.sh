@@ -588,6 +588,13 @@ step "ci.yml / fmt: Check formatting"
 ( export CARGO_TERM_COLOR="always"; cargo fmt -- --check )
 )
 
+step "ci.yml / test: Clippy (all targets, warnings denied; clippy.toml bans G1's methods)"
+(
+  gh_step ci.yml.test
+relint
+( export CARGO_TERM_COLOR="always"; cargo clippy --all-targets -- -D warnings )
+)
+
 step "ci.yml / test: bincode absent from the dependency graph (the binary vocabulary uses alice-serial's bincode1)"
 (
   gh_step ci.yml.test
