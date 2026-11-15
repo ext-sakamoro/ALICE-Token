@@ -190,3 +190,12 @@ fn another_process_writes_the_same_bytes() {
     }
     assert_eq!(at, theirs.len());
 }
+
+#[test]
+fn a_vocabulary_with_bytes_after_it_is_refused() {
+    // the whole input is one vocabulary (bincode 1 ignored trailing bytes; this does not)
+    let mut b = read("vocab_small.bin");
+    assert!(load_binary(&b).is_ok());
+    b.push(0);
+    assert!(load_binary(&b).is_err());
+}

@@ -93,6 +93,9 @@ pub fn save_tiktoken(vocab: &Vocab) -> String {
     lines.join("\n")
 }
 
+/// The largest binary vocabulary `save_binary` writes (bytes).
+const BINARY_LIMIT: usize = 256 * 1024 * 1024;
+
 /// バイナリシリアライズ用の中間構造体
 #[derive(Serialize, Deserialize)]
 struct VocabBinary {
@@ -100,7 +103,7 @@ struct VocabBinary {
     merges: Vec<(Vec<u8>, Vec<u8>)>,
 }
 
-/// 語彙をバイナリ形式（bincode）にシリアライズ
+/// 語彙をバイナリ形式 (bincode 1 の layout、`alice_serial::bincode1` で書く) にシリアライズ
 ///
 /// # Errors
 /// シリアライズ失敗時にエラーを返す。
@@ -120,7 +123,8 @@ pub fn save_binary(vocab: &Vocab) -> Result<Vec<u8>, TokenIoError> {
     }
 
     let binary = VocabBinary { tokens, merges };
-    bincode::serialize(&binary).map_err(|e| TokenIoError::Serialize(e.to_string()))
+    alice_serial::bincode1::to_vec(&binary, BINARY_LIMIT)
+        .map_err(|e| TokenIoError::Serialize(e.to_string()))
 }
 
 /// バイナリ形式から語彙をデシリアライズ
@@ -128,8 +132,9 @@ pub fn save_binary(vocab: &Vocab) -> Result<Vec<u8>, TokenIoError> {
 /// # Errors
 /// デシリアライズ失敗時にエラーを返す。
 pub fn load_binary(data: &[u8]) -> Result<Vocab, TokenIoError> {
-    let binary: VocabBinary =
-        bincode::deserialize(data).map_err(|e| TokenIoError::Deserialize(e.to_string()))?;
+    // the whole input is one vocabulary: bytes after it are refused
+    let binary: VocabBinary = alice_serial::bincode1::from_slice(data, data.len())
+        .map_err(|e| TokenIoError::Deserialize(e.to_string()))?;
 
     let mut builder = VocabBuilder::new();
     for (left, right) in &binary.merges {

@@ -19,6 +19,17 @@ jobs:
       - name: Check formatting
         run: cargo fmt -- --check
 
+  test:
+    name: Test (+ bincode absent from the dependency graph)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Test
+        run: cargo test
+      - name: bincode absent from the dependency graph (the binary vocabulary uses alice-serial's bincode1)
+        run: bash scripts/no_bincode_in_graph.sh
+
   actionlint:
     name: actionlint (workflow YAML 検証)
     runs-on: ubuntu-latest
